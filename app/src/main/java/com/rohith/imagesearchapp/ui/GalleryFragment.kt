@@ -6,6 +6,8 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
 import com.rohith.imagesearchapp.R
 import com.rohith.imagesearchapp.databinding.FragmentGalleryBinding
@@ -31,7 +33,11 @@ class GalleryFragment : Fragment() {
         // Allows Data Binding to Observe LiveData with the lifecycle of this Fragment
         binding.lifecycleOwner = this
 
-        val adapter = UnsplashPhotoAdapter()
+        // Sets the adapter of the photosGrid RecyclerView with clickHandler lambda that
+        // tells the viewModel when our photo is clicked
+        val adapter = UnsplashPhotoAdapter(UnsplashPhotoAdapter.OnClickListener {
+            viewmodel.displayPhotoDetails(it)
+        })
 
         binding.apply {
             photosGrid.setHasFixedSize(true)
@@ -41,6 +47,8 @@ class GalleryFragment : Fragment() {
         viewmodel.photos.observe(viewLifecycleOwner) {
             adapter.submitData(viewLifecycleOwner.lifecycle, it)
         }
+
+
 
         adapter.addLoadStateListener {
             binding.apply {
@@ -58,6 +66,19 @@ class GalleryFragment : Fragment() {
                 }
             }
         }
+
+
+        // Observe the navigateToSelectedPhoto LiveData and Navigate when it isn't null
+        // After navigating, call displayPhotoDetailsComplete() so that the ViewModel is ready
+        // for another navigation event.
+        viewmodel.navigateToSelectedPhoto.observe(viewLifecycleOwner, Observer {
+            if ( null != it ) {
+                // Must find the NavController from the Fragment
+                this.findNavController().navigate(GalleryFragmentDirections.actionGalleryFragmentToDetailsFragment(it))
+                // Tell the ViewModel we've made the navigate call to prevent multiple navigation
+                viewmodel.displayPhotoDetailsComplete()
+            }
+        })
 
         setHasOptionsMenu(true)
         return binding.root

@@ -2,4 +2,6 @@
     <string name="app_name">ImageSearchApp</string>
     <string name="btn_retry">Retry</string>
     <string name="menu_search">Search</string>
+    <string name="display_username">Photo by %s</string>
+    <string name="display_description">Description : %s</string>
 </resources>

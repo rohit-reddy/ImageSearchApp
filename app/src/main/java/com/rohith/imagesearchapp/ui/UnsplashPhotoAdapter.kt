@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.rohith.imagesearchapp.data.UnsplashPhotoModel
 import com.rohith.imagesearchapp.databinding.GridViewItemBinding
 
-class UnsplashPhotoAdapter() :
+class UnsplashPhotoAdapter(private val onClickListener: OnClickListener) :
     PagingDataAdapter<UnsplashPhotoModel, UnsplashPhotoAdapter.PhotoViewHolder>(
         DiffCallback) {
 
@@ -24,6 +24,9 @@ class UnsplashPhotoAdapter() :
      */
     override fun onBindViewHolder(holder: PhotoViewHolder, position: Int) {
         val photo = getItem(position)
+        holder.itemView.setOnClickListener {
+            photo?.let { it1 -> onClickListener.onClick(it1) }
+        }
         if (photo != null) holder.bind(photo)
     }
 
@@ -49,5 +52,14 @@ class UnsplashPhotoAdapter() :
 
         override fun areContentsTheSame(oldItem: UnsplashPhotoModel, newItem: UnsplashPhotoModel) =
             oldItem == newItem
+    }
+
+    /**
+     * Custom listener that handles clicks on [RecyclerView] items.  Passes the [UnsplashPhotoModel]
+     * associated with the current item to the [onClick] function.
+     * @param clickListener lambda that will be called with the current [UnsplashPhotoModel]
+     */
+    class OnClickListener(val clickListener: (unsplashPhotoModel: UnsplashPhotoModel) -> Unit) {
+        fun onClick(unsplashPhotoModel:UnsplashPhotoModel) = clickListener(unsplashPhotoModel)
     }
 }
